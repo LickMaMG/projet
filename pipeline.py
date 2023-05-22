@@ -65,10 +65,15 @@ class GenerateDataset:
     def process(self):
         # 1. Découpage
         stents_list = self.decoupage()
+
         stents = tf.data.Dataset.from_tensor_slices(stents_list)
 
         # 2. Ajout du bruit gaussien
-        dataset = stents.map(lambda x: (self.bruit_gaussien_additif(x), x))
+        dataset = stents.map(lambda x: (
+            self.bruit_gaussien_additif(x, sigma=0.01), x))
+        for i in range(100):
+            dataset = dataset.concatenate(stents.map(lambda x: (
+                self.bruit_gaussien_additif(x, sigma=(i+1)/100), x)))
         # 3. Retourner de gauche à droite
         # dataset = dataset.concatenate(dataset.map(
         #     lambda x, y: (self.flipped_lr(x), y)))
