@@ -8,8 +8,6 @@ import tensorflow as tf
 SEED = 42
 
 
-
-
 class GenerateDataset:
     def __init__(self, file):
         self.file = file
@@ -17,7 +15,7 @@ class GenerateDataset:
         self.BUFFER_SIZE = 1000
         self.BATCH_SIZE = 32
 
-    def decoupage(self, shape_resize=(512, 512)):
+    def decoupage(self, shape_resize=(512, 512, -1)):
         img = np.fromfile(self.file, dtype=np.uint16)  # open raw file
         # img is just an array. Let's reshape it in square
         img = img.reshape(1024, 1024, -1)
@@ -26,11 +24,11 @@ class GenerateDataset:
         for i in range(3):
             # resize all stents images in the same size : (512x512)
             stents[i] = cv2.resize(img[:n_3, n_3*i:n_3*(i+1)],
-                                   shape_resize[:2]).reshape(shape_resize)
+                                   shape_resize[:2])
             stents[i+3] = cv2.resize(img[n_3:n_3*2-50,
-                                         n_3*i:n_3*(i+1)], shape_resize[:2]).reshape(shape_resize)
+                                         n_3*i:n_3*(i+1)], shape_resize[:2])
             stents[i+6] = cv2.resize(img[n_3*2-50:, n_3*i:n_3*(i+1)],
-                                     shape_resize[:2]).reshape(shape_resize)
+                                     shape_resize[:2])
 
         for i, stent in enumerate(stents):
             plt.subplot(3, 3, i+1)
