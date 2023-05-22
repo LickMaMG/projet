@@ -66,7 +66,7 @@ class GenerateDataset:
 
     def process(self):
         # 1. Découpage
-        stents_list = decoupage()
+        stents_list = self.decoupage()
         stents = tf.data.Dataset.from_tensor_slices(stents_list)
 
         # 2. Ajout du bruit gaussien
