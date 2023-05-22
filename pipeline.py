@@ -24,11 +24,11 @@ class GenerateDataset:
         for i in range(3):
             # resize all stents images in the same size : (512x512)
             stents[i] = cv2.resize(img[:n_3, n_3*i:n_3*(i+1)],
-                                   shape_resize[:2])
+                                   shape_resize[:2]).reshape(shape_resize)
             stents[i+3] = cv2.resize(img[n_3:n_3*2-50,
-                                         n_3*i:n_3*(i+1)], shape_resize[:2])
+                                         n_3*i:n_3*(i+1)], shape_resize[:2]).reshape(shape_resize)
             stents[i+6] = cv2.resize(img[n_3*2-50:, n_3*i:n_3*(i+1)],
-                                     shape_resize[:2])
+                                     shape_resize[:2]).reshape(shape_resize)
 
         for i, stent in enumerate(stents):
             plt.subplot(3, 3, i+1)
