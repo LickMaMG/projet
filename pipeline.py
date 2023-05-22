@@ -8,72 +8,6 @@ import tensorflow as tf
 SEED = 42
 
 
-def decoupage(file='CDStent.raw', shape_resize=(512, 512, -1)):
-
-    img = np.fromfile('CDStent.raw', dtype=np.uint16)  # open raw file
-    # img is just an array. Let's reshape it in square
-    img = img.reshape(1024, 1024, -1)
-    n_3 = 1024//3
-    stents = [None]*9
-    for i in range(3):
-        # resize all stents images in the same size : (512x512)
-        stents[i] = cv2.resize(img[:n_3, n_3*i:n_3*(i+1)],
-                               shape_resize[:2]).reshape(shape_resize)
-        stents[i+3] = cv2.resize(img[n_3:n_3*2-50,
-                                 n_3*i:n_3*(i+1)], shape_resize[:2]).reshape(shape_resize)
-        stents[i+6] = cv2.resize(img[n_3*2-50:, n_3*i:n_3*(i+1)],
-                                 shape_resize[:2]).reshape(shape_resize)
-    return stents
-
-
-def adjusted_brightness(image, delta=0.4):
-    return tf.image.adjust_brightness(image, delta)
-
-
-def flipped_lr(image):
-    return tf.image.flip_left_right(image)  # left-right
-
-
-def random_contrasted(image):
-    return tf.image.random_contrast(image, 0.2, 0.5, seed=SEED)
-
-
-def flipped_ud(image):
-    return tf.image.flip_up_down(image)  # up-down
-
-
-def cropped(image):
-    return tf.image.central_crop(image, central_fraction=0.5)
-
-
-def rotated(image):
-    return tf.image.rot90(image)
-
-
-def bruit_gaussien_additif(image, sigma=5):
-    shape = image.shape
-    noise = np.random.normal(0, sigma, shape)
-    return image + noise
-
-
-def process():
-    stents_list = decoupage()
-    stents = tf.data.Dataset.from_tensor_slices(stents_list)
-
-    dataset = stents.map(lambda x: (bruit_gaussien_additif(x), x))
-    dataset = dataset.concatenate(dataset.map(
-        lambda x, y: (flipped_lr(x), flipped_lr(y))))
-    dataset = dataset.concatenate(dataset.map(
-        lambda x, y: (adjusted_brightness(x), y)))
-    dataset = dataset.concatenate(dataset.map(
-        lambda x, y: (random_contrasted(x), y)))
-    dataset = dataset.concatenate(dataset.map(
-        lambda x, y: (flipped_ud(x), flipped_ud(y))))
-    dataset = dataset.concatenate(dataset.map(
-        lambda x, y: (rotated(x), rotated(y))))
-    dataset = dataset.concatenate(dataset.map(lambda x, y: (cropped(x), y)))
-
-    return dataset
 
 
 class GenerateDataset:
@@ -83,7 +17,7 @@ class GenerateDataset:
         self.BUFFER_SIZE = 1000
         self.BATCH_SIZE = 32
 
-    def decoupage(self, shape_resize=(512, 512, -1)):
+    def decoupage(self, shape_resize=(512, 512)):
         img = np.fromfile(self.file, dtype=np.uint16)  # open raw file
         # img is just an array. Let's reshape it in square
         img = img.reshape(1024, 1024, -1)
