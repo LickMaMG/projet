@@ -15,7 +15,7 @@ class GenerateDataset:
         self.BUFFER_SIZE = 1000
         self.BATCH_SIZE = 32
 
-    def decoupage(self, shape_resize=(64, 64, -1)):
+    def decoupage(self, shape_resize=(256, 256, -1)):
         img = np.fromfile(self.file, dtype=np.uint16)  # open raw file
         # img is just an array. Let's reshape it in square
         img = img.reshape(1024, 1024, -1)
