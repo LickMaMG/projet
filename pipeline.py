@@ -69,11 +69,14 @@ class GenerateDataset:
         stents = tf.data.Dataset.from_tensor_slices(stents_list)
 
         # 2. Ajout du bruit gaussien
-        dataset = stents.map(lambda x: (
-            self.bruit_gaussien_additif(x, sigma=0.01), x))
-        for i in range(2, 100):
-            dataset = dataset.concatenate(dataset.map(lambda x, y: (
-                self.bruit_gaussien_additif(x, sigma=i/100), y)))
+        list_datasets = []
+        for i in range(1, 100):
+            dataset = stents.map(lambda x: (
+                self.bruit_gaussien_additif(x, sigma=i/100), x))
+            list_datasets.append(dataset)
+        final_dataset = list_datasets[0]
+        for set in list_datasets[1:]:
+            final_dataset = final_dataset.concatenate(set)
         # 3. Retourner de gauche à droite
         # dataset = dataset.concatenate(dataset.map(
         #     lambda x, y: (self.flipped_lr(x), y)))
@@ -94,10 +97,10 @@ class GenerateDataset:
         # dataset = dataset.concatenate(
         #     dataset.map(lambda x, y: (self.cropped(x), y)))
         # 9. Mettre les pixels entre 0 et 1
-        dataset = dataset.map(lambda x, y: (
+        final_dataset = final_dataset.map(lambda x, y: (
             x/tf.reduce_max(x), y/tf.reduce_max(y)))
 
-        return dataset
+        return final_dataset
 
     # TODO fonction get augmented d'Adrien
 
