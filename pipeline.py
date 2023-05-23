@@ -71,9 +71,9 @@ class GenerateDataset:
         # 2. Ajout du bruit gaussien
         dataset = stents.map(lambda x: (
             self.bruit_gaussien_additif(x, sigma=0.01), x))
-        for i in range(100):
-            dataset = dataset.concatenate(stents.map(lambda x: (
-                self.bruit_gaussien_additif(x, sigma=(i+1)/100), x)))
+        for i in range(2, 100):
+            dataset = dataset.concatenate(dataset.map(lambda x, y: (
+                self.bruit_gaussien_additif(x, sigma=i/100), y)))
         # 3. Retourner de gauche à droite
         # dataset = dataset.concatenate(dataset.map(
         #     lambda x, y: (self.flipped_lr(x), y)))
@@ -126,17 +126,17 @@ class Pipeline(GenerateDataset):
 def vizualize_pipeline_dataset():
     dataset = Pipeline(file='CDStent.raw').dataset
     print(len(dataset))
-    for batch_num, batch_instances in enumerate(list(dataset.batch(72).as_numpy_iterator())):
-        fig, axes = plt.subplots(9, 8)
-        batch_num += 1
-        axes = axes.ravel()
-        (noised_images, labels) = batch_instances
-        plt.suptitle(f'Batch {batch_num}')
-        for i, img in enumerate(noised_images):
-            axes[i].imshow(img, cmap='gray')
-            axes[i].axis('off')
-        # plt.savefig(f'Results/dataset_batch_{batch_num}.png')
-        plt.show()
+    # for batch_num, batch_instances in enumerate(list(dataset.batch(72).as_numpy_iterator())):
+    #     fig, axes = plt.subplots(9, 8)
+    #     batch_num += 1
+    #     axes = axes.ravel()
+    #     (noised_images, labels) = batch_instances
+    #     plt.suptitle(f'Batch {batch_num}')
+    #     for i, img in enumerate(noised_images):
+    #         axes[i].imshow(img, cmap='gray')
+    #         axes[i].axis('off')
+    #     # plt.savefig(f'Results/dataset_batch_{batch_num}.png')
+    #     plt.show()
 
 
 if __name__ == "__main__":
