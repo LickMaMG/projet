@@ -30,12 +30,12 @@ class GenerateDataset:
             stents[i+6] = cv2.resize(img[n_3*2-50:, n_3*i:n_3*(i+1)],
                                      shape_resize[:2]).reshape(shape_resize)
 
-        for i, stent in enumerate(stents):
-            plt.subplot(3, 3, i+1)
-            plt.imshow(stent, cmap='gray')
-            plt.title(f"stent {i+1}")
-            plt.axis('off')
-        plt.show()
+        # for i, stent in enumerate(stents):
+        #     plt.subplot(3, 3, i+1)
+        #     plt.imshow(stent, cmap='gray')
+        #     plt.title(f"stent {i+1}")
+        #     plt.axis('off')
+        # plt.show()
 
         return stents
 
@@ -70,9 +70,9 @@ class GenerateDataset:
 
         # 2. Ajout du bruit gaussien
         list_datasets = []
-        for i in range(1, 100):
+        for i in range(100):
             dataset = stents.map(lambda x: (
-                self.bruit_gaussien_additif(x, sigma=i/100), x))
+                self.bruit_gaussien_additif(x, sigma=1+i/100), x))
             list_datasets.append(dataset)
         final_dataset = list_datasets[0]
         for set in list_datasets[1:]:
