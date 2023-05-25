@@ -82,14 +82,14 @@ def unet_model2(input_shape, filters_init=32):
 
     conv4 = Conv2D(filters_init*8, 3, activation='relu', padding='same')(pool3)
     conv4 = Conv2D(filters_init*8, 3, activation='relu', padding='same')(conv4)
-    drop4 = Dropout(0.5)(conv4)
+    drop4 = Dropout(0.8)(conv4)
     pool4 = MaxPooling2D(pool_size=(2, 2))(drop4)
 
     conv5 = Conv2D(filters_init*16, 3, activation='relu',
                    padding='same')(pool4)
     conv5 = Conv2D(filters_init*16, 3, activation='relu',
                    padding='same')(conv5)
-    drop5 = Dropout(0.5)(conv5)
+    drop5 = Dropout(0.8)(conv5)
 
     # Decoder
     up6 = Conv2DTranspose(filters_init*8, 2, activation='relu',
@@ -159,7 +159,7 @@ def unet_model3(input_shape, use_batch_norm, activation, output_activation):
     conv4 = Conv2D(512, 3, activation=activation, padding='same',)(conv4)
     if use_batch_norm:
         conv4 = BatchNormalization()(conv4)
-    drop4 = Dropout(0.5)(conv4)
+    drop4 = Dropout(0.8)(conv4)
     pool4 = MaxPooling2D(pool_size=(2, 2))(drop4)
 
     conv5 = Conv2D(1024, 3, activation=activation, padding='same')(pool4)
@@ -168,7 +168,7 @@ def unet_model3(input_shape, use_batch_norm, activation, output_activation):
     conv5 = Conv2D(1024, 3, activation=activation, padding='same')(conv5)
     if use_batch_norm:
         conv5 = BatchNormalization()(conv5)
-    drop5 = Dropout(0.5)(conv5)
+    drop5 = Dropout(0.8)(conv5)
 
     # Decoder
     up6 = Conv2D(512, 2, activation=activation, padding='same')(
