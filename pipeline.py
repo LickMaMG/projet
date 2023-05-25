@@ -70,9 +70,9 @@ class GenerateDataset:
 
         # 2. Ajout du bruit gaussien
         list_datasets = []
-        for i in range(100):
+        for i in range(1000):
             dataset = stents.map(lambda x: (
-                self.bruit_gaussien_additif(x, sigma=1+i/100), x))
+                self.bruit_gaussien_additif(x, sigma=0.1+i/1000), x))
             list_datasets.append(dataset)
         final_dataset = list_datasets[0]
         for set in list_datasets[1:]:
