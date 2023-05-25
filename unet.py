@@ -21,14 +21,14 @@ def unet_model(input_shape, filters_init=32):
 
     conv4 = Conv2D(filters_init*8, 3, activation='relu', padding='same')(pool3)
     conv4 = Conv2D(filters_init*8, 3, activation='relu', padding='same')(conv4)
-    drop4 = Dropout(0.5)(conv4)
+    drop4 = Dropout(0.2)(conv4)
     pool4 = MaxPooling2D(pool_size=(2, 2))(drop4)
 
     conv5 = Conv2D(filters_init*16, 3, activation='relu',
                    padding='same')(pool4)
     conv5 = Conv2D(filters_init*16, 3, activation='relu',
                    padding='same')(conv5)
-    drop5 = Dropout(0.5)(conv5)
+    drop5 = Dropout(0.2)(conv5)
 
     # Decoder
     up6 = Conv2D(filters_init*8, 2, activation='relu',
