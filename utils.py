@@ -77,7 +77,7 @@ def get_augmented(
         return train_generator
 
 
-def plot_segm_history(history, metrics=["MSE", "MAE"], losses=["loss", "val_loss"]):
+def plot_segm_history(history, metrics=["mean_squared_error", "mean_absolute_error"], losses=["loss", "val_loss"]):
     """[summary]
 
     Args:
@@ -88,7 +88,10 @@ def plot_segm_history(history, metrics=["MSE", "MAE"], losses=["loss", "val_loss
     # summarize history for iou
     plt.figure(figsize=(12, 6))
     for metric in metrics:
-        plt.plot(history.history[metric], linewidth=3)
+        try:
+            plt.plot(history.history[metric], linewidth=3)
+        except Exception as AttributeError:
+            plt.plot(history[metric], linewidth=3)
     plt.suptitle("metrics over epochs", fontsize=20)
     plt.ylabel("metric", fontsize=20)
     plt.xlabel("epoch", fontsize=20)
@@ -99,7 +102,11 @@ def plot_segm_history(history, metrics=["MSE", "MAE"], losses=["loss", "val_loss
     # summarize history for loss
     plt.figure(figsize=(12, 6))
     for loss in losses:
-        plt.plot(history.history[loss], linewidth=3)
+        try:
+            plt.plot(history.history[loss], linewidth=3)
+        except Exception as AttributeError:
+            plt.plot(history[loss], linewidth=3)
+            
     plt.suptitle("loss over epochs", fontsize=20)
     plt.ylabel("loss", fontsize=20)
     plt.xlabel("epoch", fontsize=20)

@@ -72,7 +72,7 @@ class GenerateDataset:
         list_datasets = []
         for i in range(100):
             dataset = stents.map(lambda x: (
-                self.bruit_gaussien_additif(x, sigma=0.1+i/100), x))
+                self.bruit_gaussien_additif(x, sigma=0.5+i/100), x))
             list_datasets.append(dataset)
         final_dataset = list_datasets[0]
         for set in list_datasets[1:]:
@@ -127,19 +127,20 @@ class Pipeline(GenerateDataset):
 
 
 def vizualize_pipeline_dataset():
-    dataset = Pipeline(file='CDStent.raw').dataset
+    pipeline = Pipeline(file='CDStent.raw')
+    dataset = pipeline.dataset
     print(len(dataset))
-    # for batch_num, batch_instances in enumerate(list(dataset.batch(72).as_numpy_iterator())):
-    #     fig, axes = plt.subplots(9, 8)
-    #     batch_num += 1
-    #     axes = axes.ravel()
-    #     (noised_images, labels) = batch_instances
-    #     plt.suptitle(f'Batch {batch_num}')
-    #     for i, img in enumerate(noised_images):
-    #         axes[i].imshow(img, cmap='gray')
-    #         axes[i].axis('off')
-    #     # plt.savefig(f'Results/dataset_batch_{batch_num}.png')
-    #     plt.show()
+    for batch_num, batch_instances in enumerate(list(dataset.batch(72).as_numpy_iterator())):
+        fig, axes = plt.subplots(9, 8)
+        batch_num += 1
+        axes = axes.ravel()
+        (noised_images, labels) = batch_instances
+        plt.suptitle(f'Batch {batch_num}')
+        for i, img in enumerate(noised_images):
+            axes[i].imshow(img, cmap='gray')
+            axes[i].axis('off')
+        # plt.savefig(f'Results/dataset_batch_{batch_num}.png')
+        plt.show()
 
 
 if __name__ == "__main__":
