@@ -8,7 +8,7 @@ import tensorflow as tf
 SEED = 42
 
 
-class GenerateDataset:
+class Pipeline:
     def __init__(self, file):
         self.file = file
         self.seed = 42
@@ -62,7 +62,28 @@ class GenerateDataset:
         noise = np.random.normal(0, sigma, shape)
         return image + noise
 
-    def process(self):
+    def generate_only_noise(self):
+        # 1. Découpage
+        stents_list = self.decoupage()
+
+        stents = tf.data.Dataset.from_tensor_slices(stents_list)
+
+        # 2. Ajout du bruit gaussien
+        list_datasets = []
+        for i in range(100):
+            dataset = stents.map(lambda x: (
+                self.bruit_gaussien_additif(x, sigma=0.5+i/100), x))
+            list_datasets.append(dataset)
+        final_dataset = list_datasets[0]
+        for set in list_datasets[1:]:
+            final_dataset = final_dataset.concatenate(set)
+        
+        final_dataset = final_dataset.map(lambda x, y: (
+            x/tf.reduce_max(x), y/tf.reduce_max(y)))
+
+        return final_dataset
+    
+    def generate_dataset(self):
         # 1. Découpage
         stents_list = self.decoupage()
 
@@ -78,57 +99,30 @@ class GenerateDataset:
         for set in list_datasets[1:]:
             final_dataset = final_dataset.concatenate(set)
         # 3. Retourner de gauche à droite
-        # dataset = dataset.concatenate(dataset.map(
-        #     lambda x, y: (self.flipped_lr(x), y)))
+        dataset = dataset.concatenate(dataset.map(
+            lambda x, y: (self.flipped_lr(x), y)))
         # 4. Régler luminosité
-        # dataset = dataset.concatenate(dataset.map(
-        #     lambda x, y: (self.adjusted_brightness(x), y)))
+        dataset = dataset.concatenate(dataset.map(
+            lambda x, y: (self.adjusted_brightness(x), y)))
         # 5. Contraste aléatoire
-        # dataset = dataset.concatenate(dataset.map(
-        #     lambda x, y: (self.random_contrasted(x), y)))
+        dataset = dataset.concatenate(dataset.map(
+            lambda x, y: (self.random_contrasted(x), y)))
         # 6. Retourner du haut vers le bas
-        # dataset = dataset.concatenate(dataset.map(
-        #     lambda x, y: (self.flipped_ud(x), y)))
-        # 7. otation de 90 degrés
-        # dataset = dataset.concatenate(
-        #     dataset.map(lambda x, y: (self.rotated(x), y)))
-        # 8. Zoom sur l'image
-        #! Change le shape de l'image
-        # dataset = dataset.concatenate(
-        #     dataset.map(lambda x, y: (self.cropped(x), y)))
-        # 9. Mettre les pixels entre 0 et 1
-        final_dataset = final_dataset.map(lambda x, y: (
-            x/tf.reduce_max(x), y/tf.reduce_max(y)))
-
-        return final_dataset
+        dataset = dataset.concatenate(dataset.map(
+            lambda x, y: (self.flipped_ud(x), y)))
+        # 7. Rotation de 90 degrés
+        dataset = dataset.concatenate(
+            dataset.map(lambda x, y: (self.rotated(x), y)))
+        
+        return dataset
 
     # TODO fonction get augmented d'Adrien
 
 
-class Pipeline(GenerateDataset):
-    def __init__(self, file):
-        super().__init__(file)
-        self.dataset = self.process()
-
-        #! le mieux serait d'avoir getaugmented en classe
-        # self.dataset = (
-        #     self.dataset
-        #     .cache()
-        #     .shuffle(self.BUFFER_SIZE)
-        #     .batch(self.BATCH_SIZE)
-        #     .repeat()
-        #     # .map(GetAugmented)
-        #     .prefetch(buffer_size=tf.data.AUTOTUNE)
-        # )
-        # self.dataset = self.dataset.batch(self.BATCH_SIZE)
-
-
-# dataset = Pipeline(file='CDStent.raw').dataset
-
 
 def vizualize_pipeline_dataset():
     pipeline = Pipeline(file='CDStent.raw')
-    dataset = pipeline.dataset
+    dataset = pipeline.generate_only_noise()
     print(len(dataset))
     for batch_num, batch_instances in enumerate(list(dataset.batch(72).as_numpy_iterator())):
         fig, axes = plt.subplots(9, 8)
